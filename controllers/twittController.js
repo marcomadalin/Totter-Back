@@ -12,17 +12,18 @@ const getAllTwitts = async (req, res) => {
 //create new workout
 const createRandomTwitt = async (req, res) => {
   try {
-    const twittData = {
-      text: "Hello, Twitter!",
-      mentionId: "user" + Math.random(),
-      comments: [Math.random(), Math.random()],
-      retwitts: Math.random(),
-      likes: Math.random(),
-      user: "JohnDoe",
-      username: "johndoe" + Math.random(),
-    };
+    const twitt = await Twitt.create(req.body.twitt);
 
-    const twitt = await Twitt.create(twittData);
+    res.status(200).json(twitt);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const createTwitt = async (req, res) => {
+  try {
+    console.log(req)
+    const twitt = await Twitt.create(req.body);
 
     res.status(200).json(twitt);
   } catch (err) {
@@ -33,4 +34,5 @@ const createRandomTwitt = async (req, res) => {
 module.exports = {
   getAllTwitts,
   createRandomTwitt,
+  createTwitt,
 };
