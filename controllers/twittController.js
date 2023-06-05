@@ -12,7 +12,16 @@ const getAllTwitts = async (req, res) => {
 //create new workout
 const createRandomTwitt = async (req, res) => {
   try {
-    const twitt = await Twitt.create(req.body.twitt);
+    const data = {
+      text: "This is a twitt with a random numer: " + Math.floor(Math.random() * 1000000),
+      mentionId: null,
+      comments: [],
+      retwitts: Math.floor(Math.random() * 1000000),
+      likes: Math.floor(Math.random() * 1000000),
+      user: "id" + Math.floor(Math.random() * 1000000),
+      username: "randomuser" + Math.floor(Math.random() * 1000000),
+    };
+    const twitt = await Twitt.create(data);
 
     res.status(200).json(twitt);
   } catch (err) {
@@ -22,7 +31,6 @@ const createRandomTwitt = async (req, res) => {
 
 const createTwitt = async (req, res) => {
   try {
-    console.log(req)
     const twitt = await Twitt.create(req.body);
 
     res.status(200).json(twitt);
