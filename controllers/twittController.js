@@ -9,6 +9,15 @@ const getAllTwitts = async (req, res) => {
   }
 };
 
+const getAllUserTwitts = async (req, res) => {
+  try {
+    const twitts = await Twitt.find({ user: req.params.id }).sort({ createdAt: -1 });
+    res.status(200).json(twitts);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const createRandomTwitt = async (req, res) => {
   try {
     const data = {
@@ -50,6 +59,7 @@ const deleteTwitt = async (req, res) => {
 
 module.exports = {
   getAllTwitts,
+  getAllUserTwitts,
   createRandomTwitt,
   createTwitt,
   deleteTwitt

@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getAllTwitts,
+  getAllUserTwitts,
   createRandomTwitt,
   createTwitt,
   deleteTwitt,
@@ -9,6 +10,8 @@ const {
 const router = express.Router();
 
 router.get("/all", getAllTwitts);
+
+router.get("/user/:id", getAllUserTwitts);
 
 router.post("/newRandom", createRandomTwitt);
 
