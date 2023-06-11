@@ -9,7 +9,6 @@ const getAllTwitts = async (req, res) => {
   }
 };
 
-//create new workout
 const createRandomTwitt = async (req, res) => {
   try {
     const data = {
@@ -39,8 +38,19 @@ const createTwitt = async (req, res) => {
   }
 };
 
+const deleteTwitt = async (req, res) => {
+  try {
+    const twitt = await Twitt.deleteOne({ _id: req.params.id });
+
+    res.status(200).json(twitt);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getAllTwitts,
   createRandomTwitt,
   createTwitt,
+  deleteTwitt
 };

@@ -3,6 +3,7 @@ const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const twittRoutes = require("./routes/twittRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 //app
 const app = express();
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 
 //routes
 app.use("/twitts", twittRoutes);
+app.use("/users", userRoutes);
 
 //mongoose
 mongoose
@@ -24,7 +26,7 @@ mongoose
   .then((result) => {
     //port
     app.listen(process.env.PORT, () => {
-      console.log("connected and listening on port: " + process.env.PORT);
+      console.log("connected, listening on port: " + process.env.PORT);
     });
   })
   .catch((err) => {

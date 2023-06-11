@@ -3,17 +3,17 @@ const {
   getAllTwitts,
   createRandomTwitt,
   createTwitt,
+  deleteTwitt,
 } = require("../controllers/twittController");
 
 const router = express.Router();
 
-//GET all twitts
 router.get("/all", getAllTwitts);
 
-//POST random twitt
 router.post("/newRandom", createRandomTwitt);
 
-//POST user twitt
 router.post("/new", createTwitt);
+
+router.delete("/delete/:id", deleteTwitt);
 
 module.exports = router;
