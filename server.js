@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const twittRoutes = require("./routes/twittRoutes");
 const userRoutes = require("./routes/userRoutes");
 
-//app
 const app = express();
 
 app.use(express.json());
@@ -16,17 +15,15 @@ app.use((req, res, next) => {
   next();
 });
 
-//routes
 app.use("/twitts", twittRoutes);
 app.use("/users", userRoutes);
 
-//mongoose
 mongoose
   .connect(process.env.MONGO_URI)
   .then((result) => {
     //port
     app.listen(process.env.PORT, () => {
-      console.log("connected, listening on port: " + process.env.PORT);
+      console.log("Connected to DB, listening on port: " + process.env.PORT);
     });
   })
   .catch((err) => {
