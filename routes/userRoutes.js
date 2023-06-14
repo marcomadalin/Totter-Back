@@ -3,13 +3,16 @@ const {
   getUser,
   createUser,
   deleteUser,
+  loginUser,
 } = require("../controllers/userController");
 
 const router = express.Router();
 
-router.get("/:id", getUser);
+router.post("/login", loginUser);
 
 router.post("/new", createUser);
+
+router.get("/:id", getUser);
 
 router.delete("/:id", deleteUser);
 
