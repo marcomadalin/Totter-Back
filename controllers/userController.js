@@ -7,6 +7,17 @@ function createToken(_id) {
   return jwt.sign({_id: _id}, process.env.SECRET, {expiresIn: '1d'})
 }
 
+const verifyToken = async (req, res) => {
+  try {
+    const decoded = jwt.verify(req.headers.authorization.split(" ")[1], process.env.SECRET)
+    console.log(decoded)
+    res.status(200).json(true)
+  }
+  catch (error) {
+    res.status(400).json({error: error.message})
+  }
+}
+
 const loginUser = async (req, res) => {
   try {
     if (!(req.body.username && req.body.password)) return res.status(400).json({error: "All fields must be filled"})
@@ -20,7 +31,7 @@ const loginUser = async (req, res) => {
 
     const token = createToken(user.id)
 
-    res.status (200).json({user, token})
+    res.status(200).json({user, token})
   }
   catch (error) {
     res.status(400).json({error: error.message})
@@ -74,4 +85,5 @@ module.exports = {
   createUser,
   getUser,
   deleteUser,
+  verifyToken,
 };
