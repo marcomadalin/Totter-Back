@@ -6,6 +6,7 @@ const {
   loginUser,
   verifyToken
 } = require("../controllers/userController");
+const requireAuth = require("../middleware/requreAuth");
 
 const router = express.Router();
 
@@ -17,6 +18,6 @@ router.post("/new", createUser);
 
 router.get("/:id", getUser);
 
-router.delete("/:id", deleteUser);
+router.delete("/:id", requireAuth, deleteUser);
 
 module.exports = router;
