@@ -50,13 +50,13 @@ const createUser = async (req, res) => {
     const hash = await bcrypt.hash(req.body.password, salt)
 
     req.body.password = hash
-
     const user = await User.create(req.body);
     const token = createToken(user.id)
 
     res.status(200).json({user, token})
 
   } catch (err) {
+    console.log(err)
     res.status(400).json({ error: err.message });
   }
 };
@@ -64,6 +64,27 @@ const createUser = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const user = await User.find({ _id: req.params.id })
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    console.log("body:")
+    console.log(req.body)
+    const user = await User.findOneAndUpdate({ _id: req.params.id },
+        {
+          $set:{
+            name: req.body.name,
+            bio: req.body.bio,
+            location: req.body.location,
+            banner: req.body.bannerData,
+            profile: req.body.profileData
+          }
+        }, { returnOriginal: false })
+
     res.status(200).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -86,4 +107,5 @@ module.exports = {
   getUser,
   deleteUser,
   verifyToken,
+  updateUser,
 };

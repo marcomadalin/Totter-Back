@@ -24,14 +24,6 @@ const userSchema = new Schema(
         type: String,
         required: true,
     },
-      bio: {
-          type: String,
-          required: true,
-      },
-      location: {
-          type: String,
-          required: true,
-      },
     followers: {
       type: Array,
       required: true,
@@ -40,6 +32,19 @@ const userSchema = new Schema(
       type: Array,
       required: true,
     },
+      bio: {
+        type: String,
+      },
+      location: {
+          type: String,
+      },
+      profile: {
+          type: String,
+      },
+      banner: {
+          type: String,
+      }
+
   },
   { timestamps: true }
 );

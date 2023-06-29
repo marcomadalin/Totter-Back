@@ -4,7 +4,8 @@ const {
   createUser,
   deleteUser,
   loginUser,
-  verifyToken
+  verifyToken,
+  updateUser
 } = require("../controllers/userController");
 const requireAuth = require("../middleware/requireAuth");
 
@@ -17,6 +18,8 @@ router.get("/verify", verifyToken);
 router.post("/new", createUser);
 
 router.get("/:id", getUser);
+
+router.put("/:id", requireAuth, updateUser);
 
 router.delete("/:id", requireAuth, deleteUser);
 
