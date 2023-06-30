@@ -1,9 +1,18 @@
 const Twitt = require("../models/twittModel");
+const User = require("../models/userModel")
 
 const getAllTwitts = async (req, res) => {
   try {
     const twitts = await Twitt.find().sort({ createdAt: -1 });
-    res.status(200).json(twitts);
+
+    const updatedTwitts = await Promise.all(twitts.map(async (twitt) => {
+      const user = await User.findById(twitt.user);
+      const twittObject = twitt.toObject(); // Convert Mongoose document to plain object
+      twittObject.image = user.profile; // Add the image property
+      return twittObject;
+    }));
+
+    res.status(200).json(updatedTwitts);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

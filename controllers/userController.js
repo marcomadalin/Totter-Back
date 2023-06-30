@@ -72,18 +72,38 @@ const getUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    console.log("body:")
-    console.log(req.body)
-    const user = await User.findOneAndUpdate({ _id: req.params.id },
+
+    let bannerData = req.body.bannerData;
+    let profileData = req.body.profileData;
+
+    if (req.files && req.files.length > 0) {
+      const bannerFile = req.files.find((file) => file.fieldname === 'banner');
+      const profileFile = req.files.find((file) => file.fieldname === 'profile');
+
+      if (bannerFile) {
+        const bannerDataBuffer = bannerFile.buffer.toString("base64");
+        bannerData = bannerDataBuffer;
+      }
+
+      if (profileFile) {
+        const profileDataBuffer = profileFile.buffer.toString("base64");
+        profileData = profileDataBuffer;
+      }
+    }
+
+    const user = await User.findOneAndUpdate(
+        { _id: req.params.id },
         {
-          $set:{
+          $set: {
             name: req.body.name,
             bio: req.body.bio,
             location: req.body.location,
-            banner: req.body.bannerData,
-            profile: req.body.profileData
+            banner: bannerData,
+            profile: profileData
           }
-        }, { returnOriginal: false })
+        },
+        { returnOriginal: false }
+    );
 
     res.status(200).json(user);
   } catch (err) {

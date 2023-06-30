@@ -8,6 +8,9 @@ const {
   updateUser
 } = require("../controllers/userController");
 const requireAuth = require("../middleware/requireAuth");
+const multer = require('multer');
+
+const upload = multer();
 
 const router = express.Router();
 
@@ -21,6 +24,6 @@ router.get("/:id", getUser);
 
 router.put("/:id", requireAuth, updateUser);
 
-router.delete("/:id", requireAuth, deleteUser);
+router.delete("/:id", requireAuth, upload.single('image'), deleteUser);
 
 module.exports = router;
