@@ -76,6 +76,8 @@ const updateUser = async (req, res) => {
     let bannerData = req.body.bannerData;
     let profileData = req.body.profileData;
 
+    console.log(bannerData)
+
     if (req.files && req.files.length > 0) {
       const bannerFile = req.files.find((file) => file.fieldname === 'banner');
       const profileFile = req.files.find((file) => file.fieldname === 'profile');
@@ -90,6 +92,8 @@ const updateUser = async (req, res) => {
         profileData = profileDataBuffer;
       }
     }
+
+    if (req.body.deleteBanner) bannerData = ""
 
     const user = await User.findOneAndUpdate(
         { _id: req.params.id },

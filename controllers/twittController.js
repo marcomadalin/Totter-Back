@@ -7,8 +7,8 @@ const getAllTwitts = async (req, res) => {
 
     const updatedTwitts = await Promise.all(twitts.map(async (twitt) => {
       const user = await User.findById(twitt.user);
-      const twittObject = twitt.toObject(); // Convert Mongoose document to plain object
-      twittObject.image = user.profile; // Add the image property
+      const twittObject = twitt.toObject();
+      twittObject.image = user.profile;
       return twittObject;
     }));
 
