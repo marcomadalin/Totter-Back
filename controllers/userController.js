@@ -115,6 +115,49 @@ const updateUser = async (req, res) => {
   }
 };
 
+const followUser = async (req, res) => {
+  try {
+    const actualUser = await User.findOne({ _id: req.body.actualUser })
+    if (!actualUser) return res.status(400).json({error: "User does not exist"})
+
+    const targetUser = await User.findOne({ _id: req.body.targetUser })
+    if (!targetUser) return res.status(400).json({error: "User does not exist"})
+
+    if (req.body.follow) {
+      actualUser.following.push(req.body.targetUser)
+      targetUser.followers.push(req.body.actualUser)
+    }
+    else {
+      actualUser.following.remove(req.body.targetUser)
+      targetUser.followers.remove(req.body.actualUser)
+    }
+
+    const userAct = await User.findOneAndUpdate(
+        { _id: req.body.actualUser },
+        {
+          $set: {
+            following: actualUser.following,
+          }
+        },
+        { returnOriginal: false }
+    );
+
+    const userTarget = await User.findOneAndUpdate(
+        { _id: req.body.targetUser },
+        {
+          $set: {
+            followers: targetUser.followers,
+          }
+        },
+        { returnOriginal: false }
+    );
+
+    res.status(200).json({userAct, userTarget});
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const deleteUser = async (req, res) => {
   try {
     const user = await User.deleteOne({ _id: req.params.id });
@@ -132,4 +175,5 @@ module.exports = {
   deleteUser,
   verifyToken,
   updateUser,
+  followUser
 };

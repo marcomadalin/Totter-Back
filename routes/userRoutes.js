@@ -5,7 +5,8 @@ const {
   deleteUser,
   loginUser,
   verifyToken,
-  updateUser
+  updateUser,
+  followUser
 } = require("../controllers/userController");
 const requireAuth = require("../middleware/requireAuth");
 const multer = require('multer');
@@ -21,6 +22,8 @@ router.get("/verify", verifyToken);
 router.post("/new", createUser);
 
 router.get("/:id", getUser);
+
+router.put("/follow", requireAuth, followUser);
 
 router.put("/:id", requireAuth, updateUser);
 
