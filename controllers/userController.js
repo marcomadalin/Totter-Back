@@ -63,7 +63,14 @@ const createUser = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const user = await User.find({ _id: req.params.id })
+    let user
+    try {
+      user = await User.findOne({_id: req.params.id})
+      if (!user) return res.status(400).json({error: "User does not exist"})
+    } catch (err) {
+      user = await User.findOne({ username: req.params.id })
+      if (!user) return res.status(400).json({error: "User does not exist"})
+    }
     res.status(200).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -73,10 +80,10 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
 
+    if (req.body.actualUser !== req.userId) return res.status(401).json({error: "Cannot update user"})
+
     let bannerData = req.body.bannerData;
     let profileData = req.body.profileData;
-
-    console.log(bannerData)
 
     if (req.files && req.files.length > 0) {
       const bannerFile = req.files.find((file) => file.fieldname === 'banner');
@@ -117,6 +124,8 @@ const updateUser = async (req, res) => {
 
 const followUser = async (req, res) => {
   try {
+    if (req.body.actualUser !== req.userId) return res.status(401).json({error: "Cannot follow user"})
+
     const actualUser = await User.findOne({ _id: req.body.actualUser })
     if (!actualUser) return res.status(400).json({error: "User does not exist"})
 
@@ -160,6 +169,8 @@ const followUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
+    if (req.params.id !== req.userId) return res.status(401).json({error: "Cannot delete user"})
+
     const user = await User.deleteOne({ _id: req.params.id });
 
     res.status(200).json(user);

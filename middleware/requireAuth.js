@@ -8,7 +8,7 @@ async function requireAuth(req, res, next) {
 
     try {
         const {_id} = jwt.verify(req.headers.authorization.split(" ")[1], process.env.SECRET)
-        req.user = await User.findById({_id}).select('_id')
+        req.userId = _id
         next()
     }
     catch (error) {
