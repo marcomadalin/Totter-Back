@@ -39,7 +39,7 @@ const loginUser = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    if (!validator.isStrongPassword(req.body.password)) return res.status(400).json({error: "Password not strong enough"})
+    //if (!validator.isStrongPassword(req.body.password)) return res.status(400).json({error: "Password not strong enough"})
 
     const exists = await User.findOne({ username: req.body.username })
 
