@@ -10,7 +10,6 @@ function createToken(_id) {
 const verifyToken = async (req, res) => {
   try {
     const decoded = jwt.verify(req.headers.authorization.split(" ")[1], process.env.SECRET)
-    console.log(decoded)
     res.status(200).json(true)
   }
   catch (error) {
@@ -56,7 +55,6 @@ const createUser = async (req, res) => {
     res.status(200).json({user, token})
 
   } catch (err) {
-    console.log(err)
     res.status(400).json({ error: err.message });
   }
 };
