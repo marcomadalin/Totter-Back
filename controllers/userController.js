@@ -78,7 +78,7 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
 
-    if (req.body.actualUser !== req.userId) return res.status(401).json({error: "Cannot update user"})
+    if (req.params.id !== req.userId) return res.status(403).json({error: "Cannot update user"})
 
     let bannerData = req.body.bannerData;
     let profileData = req.body.profileData;
@@ -122,7 +122,7 @@ const updateUser = async (req, res) => {
 
 const followUser = async (req, res) => {
   try {
-    if (req.body.actualUser !== req.userId) return res.status(401).json({error: "Cannot follow user"})
+    if (req.body.actualUser !== req.userId) return res.status(403).json({error: "Cannot follow user"})
 
     const actualUser = await User.findOne({ _id: req.body.actualUser })
     if (!actualUser) return res.status(400).json({error: "User does not exist"})
@@ -167,7 +167,7 @@ const followUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    if (req.params.id !== req.userId) return res.status(401).json({error: "Cannot delete user"})
+    if (req.params.id !== req.userId) return res.status(403).json({error: "Cannot delete user"})
 
     const user = await User.deleteOne({ _id: req.params.id });
 
