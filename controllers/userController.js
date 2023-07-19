@@ -75,6 +75,71 @@ const getUser = async (req, res) => {
   }
 };
 
+
+const getUserFollowers = async (req, res) => {
+  try {
+    let user
+    try {
+      user = await User.findOne({_id: req.params.id})
+      if (!user) return res.status(400).json({error: "User does not exist"})
+    } catch (err) {
+      user = await User.findOne({ username: req.params.id })
+      if (!user) return res.status(400).json({error: "User does not exist"})
+    }
+
+    const followersPromises = user.followers.map(async (userId) => {
+      try {
+        const user = await User.findOne({ _id: userId });
+        if (!user) throw new Error("Follower not found");
+        return user;
+      } catch (err) {
+        return null;
+      }
+    });
+
+    const followers = await Promise.all(followersPromises);
+
+    const filteredFollowers = followers.filter((follower) => follower !== null);
+    filteredFollowers.sort((a, b) => a.username.localeCompare(b.username));
+
+    res.status(200).json(filteredFollowers);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const getUserFollowing = async (req, res) => {
+  try {
+    let user
+    try {
+      user = await User.findOne({_id: req.params.id})
+      if (!user) return res.status(400).json({error: "User does not exist"})
+    } catch (err) {
+      user = await User.findOne({ username: req.params.id })
+      if (!user) return res.status(400).json({error: "User does not exist"})
+    }
+
+    const followersPromises = user.following.map(async (userId) => {
+      try {
+        const user = await User.findOne({ _id: userId });
+        if (!user) throw new Error("Follower not found");
+        return user;
+      } catch (err) {
+        return null;
+      }
+    });
+
+    const followers = await Promise.all(followersPromises);
+
+    const filteredFollowers = followers.filter((follower) => follower !== null);
+    filteredFollowers.sort((a, b) => a.username.localeCompare(b.username));
+
+    res.status(200).json(filteredFollowers);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const updateUser = async (req, res) => {
   try {
 
@@ -181,6 +246,8 @@ module.exports = {
   loginUser,
   createUser,
   getUser,
+  getUserFollowers,
+  getUserFollowing,
   deleteUser,
   verifyToken,
   updateUser,

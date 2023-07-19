@@ -13,9 +13,7 @@ const router = express.Router();
 
 router.get("/all", getAllTwitts);
 
-router.get("/allUser/:id", requireAuth, getAllUserTwitts);
-
-router.post("/newRandom", createRandomTwitt);
+router.get("/allUser/:id", getAllUserTwitts);
 
 router.post("/new", requireAuth, createTwitt);
 
