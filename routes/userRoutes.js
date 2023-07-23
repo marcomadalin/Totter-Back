@@ -1,8 +1,10 @@
 const express = require("express");
 const {
   getUser,
+  checkUsername,
   getUserFollowers,
   getUserFollowing,
+  getFollowRecommendations,
   createUser,
   deleteUser,
   loginUser,
@@ -21,7 +23,11 @@ router.post("/login", loginUser);
 
 router.get("/verify", verifyToken);
 
+router.get("/checkUsername", checkUsername);
+
 router.post("/new", createUser);
+
+router.get("/recommendations", requireAuth, getFollowRecommendations);
 
 router.get("/:id/followers", getUserFollowers);
 

@@ -37,6 +37,17 @@ const loginUser = async (req, res) => {
   }
 };
 
+const checkUsername = async (req, res) => {
+  try {
+    const exists = await User.findOne({ username: req.query.username })
+    if (exists) return res.status(400).json({error: "Username already in use"})
+
+    res.status(200).json(true)
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const createUser = async (req, res) => {
   try {
     //if (!validator.isStrongPassword(req.body.password)) return res.status(400).json({error: "Password not strong enough"})
@@ -70,6 +81,25 @@ const getUser = async (req, res) => {
       if (!user) return res.status(400).json({error: "User does not exist"})
     }
     res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const getFollowRecommendations = async (req, res) => {
+  try {
+    const actualUser = await User.findOne({_id: req.userId})
+    const users = (await User.find()).sort(() => Math.random() - 0.5);
+    const recommendations = []
+
+    if (users.length !== 0 ) {
+      let index = 0
+      while (recommendations.length !== 4 && index < users.length) {
+        if (!actualUser._id.equals(users[index]._id) && !actualUser.following.includes(users[index]._id)) recommendations.push(users[index])
+        ++index
+      }
+    }
+    res.status(200).json(recommendations);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -244,10 +274,12 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
   loginUser,
+  checkUsername,
   createUser,
   getUser,
   getUserFollowers,
   getUserFollowing,
+  getFollowRecommendations,
   deleteUser,
   verifyToken,
   updateUser,
