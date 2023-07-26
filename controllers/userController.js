@@ -86,6 +86,18 @@ const getUser = async (req, res) => {
   }
 };
 
+const findUser = async (req, res) => {
+  try {
+    const regex = new RegExp(req.query.user, 'i');
+
+    const users = await User.find({ name: regex }).sort({ 'followers.length': -1 }).limit(req.query.limit);
+
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const getFollowRecommendations = async (req, res) => {
   try {
     const actualUser = await User.findOne({_id: req.userId})
@@ -277,6 +289,7 @@ module.exports = {
   checkUsername,
   createUser,
   getUser,
+  findUser,
   getUserFollowers,
   getUserFollowing,
   getFollowRecommendations,

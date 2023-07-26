@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getUser,
+    findUser,
   checkUsername,
   getUserFollowers,
   getUserFollowing,
@@ -21,13 +22,15 @@ const router = express.Router();
 
 router.post("/login", loginUser);
 
+router.post("/new", createUser);
+
 router.get("/verify", verifyToken);
 
 router.get("/checkUsername", checkUsername);
 
-router.post("/new", createUser);
-
 router.get("/recommendations", requireAuth, getFollowRecommendations);
+
+router.get("/search", findUser);
 
 router.get("/:id/followers", getUserFollowers);
 
