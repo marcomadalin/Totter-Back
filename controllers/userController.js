@@ -88,9 +88,8 @@ const getUser = async (req, res) => {
 
 const findUser = async (req, res) => {
   try {
-    const regex = new RegExp(req.query.user, 'i');
-
-    const users = await User.find({ name: regex }).sort({ 'followers.length': -1 }).limit(req.query.limit);
+    console.log(req.query.user)
+        const users = await User.find({ name: { $regex: req.query.user, $options: 'i' } }).sort({ 'followers.length': -1 }).limit(req.query.limit);
 
     res.status(200).json(users);
   } catch (err) {
