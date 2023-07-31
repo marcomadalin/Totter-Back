@@ -2,7 +2,7 @@ const express = require("express");
 const {
   getAllTwitts,
   getAllUserTwitts,
-  createRandomTwitt,
+  getFollowingUsersTwitts,
   createTwitt,
   deleteTwitt,
 } = require("../controllers/twittController");
@@ -10,6 +10,8 @@ const {
 const requireAuth = require("../middleware/requireAuth");
 
 const router = express.Router();
+
+router.get("/allFollowing", requireAuth, getFollowingUsersTwitts);
 
 router.get("/all", getAllTwitts);
 

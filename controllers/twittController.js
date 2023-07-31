@@ -27,6 +27,23 @@ const getAllUserTwitts = async (req, res) => {
   }
 };
 
+const getFollowingUsersTwitts = async (req, res) => {
+  try {
+    const twitts = await Twitt.find({ user: { "$in" : req.query.following} }).sort({ createdAt: -1 });
+
+    const updatedTwitts = await Promise.all(twitts.map(async (twitt) => {
+      const user = await User.findById(twitt.user);
+      const twittObject = twitt.toObject();
+      twittObject.image = user.profile;
+      return twittObject;
+    }));
+
+    res.status(200).json(updatedTwitts);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const createTwitt = async (req, res) => {
   try {
     const twitt = await Twitt.create(req.body);
@@ -51,5 +68,6 @@ module.exports = {
   getAllTwitts,
   getAllUserTwitts,
   createTwitt,
-  deleteTwitt
+  deleteTwitt,
+  getFollowingUsersTwitts
 };
