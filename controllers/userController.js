@@ -100,12 +100,12 @@ const findUser = async (req, res) => {
 const getFollowRecommendations = async (req, res) => {
   try {
     const actualUser = await User.findOne({_id: req.userId})
-    const users = (await User.find()).sort(() => Math.random() - 0.5);
+    const users = (await User.find()).sort((a, b) => a.followers.length - b.followers.length);
     const recommendations = []
 
     if (users.length !== 0 ) {
       let index = 0
-      while (recommendations.length !== 4 && index < users.length) {
+      while ( (recommendations.length !== req.query.limit || req.query.limit === 0) && index < users.length) {
         if (!actualUser._id.equals(users[index]._id) && !actualUser.following.includes(users[index]._id)) recommendations.push(users[index])
         ++index
       }
