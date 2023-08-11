@@ -186,6 +186,10 @@ const updateUser = async (req, res) => {
 
     if (req.params.id !== req.userId) return res.status(403).json({error: "Cannot update user"})
 
+    const userFound = await User.findOne({ username: req.body.username })
+    if (userFound && !userFound._id.equals(req.userId)) return res.status(400).json({error: "Username already in use"})
+
+
     let bannerData = req.body.bannerData;
     let profileData = req.body.profileData;
 
@@ -211,6 +215,7 @@ const updateUser = async (req, res) => {
         {
           $set: {
             name: req.body.name,
+            username: req.body.username,
             bio: req.body.bio,
             location: req.body.location,
             banner: bannerData,
