@@ -5,6 +5,8 @@ const {
   getFollowingUsersTwitts,
   createTwitt,
   deleteTwitt,
+  updateLikes,
+
 } = require("../controllers/twittController");
 
 const requireAuth = require("../middleware/requireAuth");
@@ -16,6 +18,8 @@ router.get("/allFollowing", requireAuth, getFollowingUsersTwitts);
 router.get("/all", getAllTwitts);
 
 router.get("/allUser/:id", getAllUserTwitts);
+
+router.put("/updateLikes", requireAuth, updateLikes);
 
 router.post("/new", requireAuth, createTwitt);
 

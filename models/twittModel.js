@@ -8,7 +8,7 @@ const twittSchema = new Schema(
       type: String,
       required: true,
     },
-    mentionId: {
+    fatherId: {
       type: String,
       required: false,
     },
@@ -36,6 +36,26 @@ const twittSchema = new Schema(
       type: String,
       required: true,
     },
+      likedBy: {
+          type: Array,
+          required: true,
+          default: [],
+      },
+      commentedBy: {
+          type: Array,
+          required: true,
+          default: [],
+      },
+      retweetedBy: {
+          type: Array,
+          required: true,
+          default: [],
+      },
+      isRetwitt: {
+          type: String,
+          required: true,
+          default: false,
+      }
   },
   { timestamps: true }
 );

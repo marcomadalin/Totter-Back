@@ -64,10 +64,40 @@ const deleteTwitt = async (req, res) => {
   }
 };
 
+const updateLikes = async (req, res) => {
+  try {
+    const userLikes = req.body.userLikes
+
+    if (req.body.like) userLikes.push(req.userId)
+    else {
+      const index = userLikes.indexOf(req.userId);
+      if (index > -1) userLikes.splice(index, 1);
+    }
+
+    const twitt= await Twitt.findOneAndUpdate(
+        { _id: req.body.twittId },
+        {
+          $set: {
+            likedBy: userLikes,
+          },
+          $inc: {
+            likes: req.body.like ? 1 : -1,
+          }
+        },
+        { returnOriginal: false }
+    );
+
+    res.status(200).json(twitt);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getAllTwitts,
   getAllUserTwitts,
   createTwitt,
   deleteTwitt,
-  getFollowingUsersTwitts
+  getFollowingUsersTwitts,
+  updateLikes,
 };
