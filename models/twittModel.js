@@ -15,6 +15,7 @@ const twittSchema = new Schema(
     comments: {
       type: Array,
       required: true,
+        default: [],
     },
     retwitts: {
       type: Number,
@@ -28,6 +29,9 @@ const twittSchema = new Schema(
       type: String,
       required: true,
     },
+      usernameRetwitt: {
+          type: String,
+      },
       name: {
           type: String,
           required: true,
@@ -46,13 +50,13 @@ const twittSchema = new Schema(
           required: true,
           default: [],
       },
-      retweetedBy: {
+      retwittedBy: {
           type: Array,
           required: true,
           default: [],
       },
       isRetwitt: {
-          type: String,
+          type: Boolean,
           required: true,
           default: false,
       }

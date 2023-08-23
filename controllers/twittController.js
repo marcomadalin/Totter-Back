@@ -93,6 +93,30 @@ const updateLikes = async (req, res) => {
   }
 };
 
+const retwitt = async (req, res) => {
+  try {
+    const twitt = await Twitt.create(req.body);
+
+    await Twitt.updateOne(
+        { _id: twitt.fatherId },
+        {
+          $set: {
+            retwittedBy: twitt.usernameRetwitt,
+          },
+          $inc: {
+            retwitts: 1,
+          }
+        },
+        { returnOriginal: false }
+    );
+
+
+    res.status(200).json(twitt);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   getAllTwitts,
   getAllUserTwitts,
@@ -100,4 +124,5 @@ module.exports = {
   deleteTwitt,
   getFollowingUsersTwitts,
   updateLikes,
+  retwitt,
 };

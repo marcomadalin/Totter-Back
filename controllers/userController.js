@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
 const validator = require("validator")
+const Twitt = require("../models/twittModel");
 
 function createToken(_id) {
   return jwt.sign({_id: _id}, process.env.SECRET, {expiresIn: '1d'})
@@ -181,12 +182,47 @@ const getUserFollowing = async (req, res) => {
   }
 };
 
+const updateUserPosts = async (id, username, data) => {
+  try {
+
+  const twitts = await Twitt.find({ user: id })
+
+  await Promise.all(twitts.map(async (twitt) => {
+    await Twitt.findOneAndUpdate(
+        { _id: twitt._id },
+        {
+          $set: {
+            name: data.name,
+            username: data.username
+          },
+        },
+    );
+  }));
+
+  const retwitts = await Twitt.find({ usernameRetwitt: username })
+
+  await Promise.all(retwitts.map(async (retwitt) => {
+    await Twitt.findOneAndUpdate(
+        { usernameRetwitt: retwitt.usernameRetwitt },
+        {
+          $set: {
+            usernameRetwitt: data.username,
+          },
+        },
+    );
+  }));
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
 const updateUser = async (req, res) => {
   try {
 
     if (req.params.id !== req.userId) return res.status(403).json({error: "Cannot update user"})
 
-    const userFound = await User.findOne({ username: req.body.username })
+    const userFound = await User.findOne({ _id: req.userId })
     if (userFound && !userFound._id.equals(req.userId)) return res.status(400).json({error: "Username already in use"})
 
 
@@ -225,8 +261,15 @@ const updateUser = async (req, res) => {
         { returnOriginal: false }
     );
 
+    console.log(userFound)
+    console.log(user)
+
+    if (!(userFound.name === user.name && userFound.username === user.username))
+      await updateUserPosts(userFound._id, userFound.username, {name: user.name, username: user.username})
+
     res.status(200).json(user);
   } catch (err) {
+    console.log(err)
     res.status(400).json({ error: err.message });
   }
 };
