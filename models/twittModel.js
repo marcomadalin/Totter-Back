@@ -17,10 +17,6 @@ const twittSchema = new Schema(
       required: true,
         default: [],
     },
-    retwitts: {
-      type: Number,
-      required: true,
-    },
     likes: {
       type: Number,
       required: true,
@@ -29,9 +25,6 @@ const twittSchema = new Schema(
       type: String,
       required: true,
     },
-      usernameRetwitt: {
-          type: String,
-      },
       name: {
           type: String,
           required: true,
@@ -55,11 +48,6 @@ const twittSchema = new Schema(
           required: true,
           default: [],
       },
-      isRetwitt: {
-          type: Boolean,
-          required: true,
-          default: false,
-      }
   },
   { timestamps: true }
 );

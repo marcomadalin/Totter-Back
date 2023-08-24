@@ -6,7 +6,8 @@ const {
   createTwitt,
   deleteTwitt,
   updateLikes,
-  retwitt,
+  createRetwitt,
+  deleteRetwitt
 
 } = require("../controllers/twittController");
 
@@ -22,10 +23,13 @@ router.get("/allUser/:id", getAllUserTwitts);
 
 router.put("/updateLikes", requireAuth, updateLikes);
 
-router.post("/retwitt", requireAuth, retwitt);
+router.post("/newRetwitt", requireAuth, createRetwitt);
 
 router.post("/new", requireAuth, createTwitt);
 
+router.delete("/deleteRetwitt", requireAuth, deleteRetwitt);
+
 router.delete("/delete/:id", requireAuth, deleteTwitt);
+
 
 module.exports = router;

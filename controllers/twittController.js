@@ -1,18 +1,55 @@
 const Twitt = require("../models/twittModel");
+const Retwitt = require("../models/retwittModel");
 const User = require("../models/userModel")
 
-const getAllTwitts = async (req, res) => {
+const mixTwittsAndRetwitts = async (twitts, retwitts) => {
   try {
-    const twitts = await Twitt.find().sort({ createdAt: -1 });
-
     const updatedTwitts = await Promise.all(twitts.map(async (twitt) => {
       const user = await User.findById(twitt.user);
       const twittObject = twitt.toObject();
       twittObject.image = user.profile;
+      twittObject.compare = twittObject.createdAt
       return twittObject;
     }));
 
-    res.status(200).json(updatedTwitts);
+    const updatedRewitts = await Promise.all(retwitts.map(async (retwitt) => {
+      const user = await User.findById(retwitt.userId);
+      let retwittObject = retwitt.toObject()
+      let twitt = updatedTwitts.find((twitt) => twitt._id.equals(retwitt.twittId))
+      if (twitt === null || twitt === undefined) {
+        twitt = await Twitt.findById(retwitt.twittId)
+        const user = await User.findById(twitt.user);
+        const twittObject = twitt.toObject();
+        twittObject.image = user.profile;
+        twittObject.compare = twittObject.createdAt
+        twitt = twittObject
+      }
+
+      retwittObject.retwittUsername = user.username
+      orgCompare = structuredClone(retwittObject.createdAt)
+      retwittObject = Object.assign(retwittObject, twitt)
+      retwittObject.compare = orgCompare
+
+      return retwittObject;
+    }));
+
+    const result = [...updatedTwitts, ...updatedRewitts]
+    result.sort((a,b) => { return b.compare - a.compare })
+
+    return result
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
+const getAllTwitts = async (req, res) => {
+  try {
+    const twitts = await Twitt.find()
+    const retwitts = await Retwitt.find()
+
+    const result = await mixTwittsAndRetwitts(twitts, retwitts)
+    res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -20,8 +57,11 @@ const getAllTwitts = async (req, res) => {
 
 const getAllUserTwitts = async (req, res) => {
   try {
-    const twitts = await Twitt.find({ user: req.params.id }).sort({ createdAt: -1 });
-    res.status(200).json(twitts);
+    const twitts = await Twitt.find({ user: req.params.id })
+    const retwitts = await Retwitt.find({ userId: req.params.id })
+
+    const result = await mixTwittsAndRetwitts(twitts, retwitts)
+    res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -29,16 +69,11 @@ const getAllUserTwitts = async (req, res) => {
 
 const getFollowingUsersTwitts = async (req, res) => {
   try {
-    const twitts = await Twitt.find({ user: { "$in" : req.query.following} }).sort({ createdAt: -1 });
+    const twitts = await Twitt.find({ user: { "$in" : req.query.following} })
+    const retwitts = await Twitt.find({ userId: { "$in" : req.query.following} })
 
-    const updatedTwitts = await Promise.all(twitts.map(async (twitt) => {
-      const user = await User.findById(twitt.user);
-      const twittObject = twitt.toObject();
-      twittObject.image = user.profile;
-      return twittObject;
-    }));
-
-    res.status(200).json(updatedTwitts);
+    const result = await mixTwittsAndRetwitts(twitts, retwitts)
+    res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -93,19 +128,49 @@ const updateLikes = async (req, res) => {
   }
 };
 
-const retwitt = async (req, res) => {
+const createRetwitt = async (req, res) => {
   try {
-    const twitt = await Twitt.create(req.body);
+    await Retwitt.create(req.body.data);
 
-    await Twitt.updateOne(
-        { _id: twitt.fatherId },
+    const newRetwitts = req.body.retwitts
+    newRetwitts.push(req.body.data.userId)
+
+    const twitt = await Twitt.findOneAndUpdate(
+        { _id: req.body.data.twittId },
         {
           $set: {
-            retwittedBy: twitt.usernameRetwitt,
+            retwittedBy: newRetwitts,
           },
           $inc: {
             retwitts: 1,
           }
+        },
+        { returnOriginal: false }
+    );
+
+
+    res.status(200).json(twitt);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const deleteRetwitt = async (req, res) => {
+  try {
+
+    await Retwitt.findOneAndDelete({userId: req.query.userId, twittId: req.query.twittId})
+
+    const newRetwitts = req.query.retwitts
+    const index = newRetwitts.indexOf(req.query.userId);
+    if (index > -1) newRetwitts.splice(index, 1);
+
+
+    const twitt = await Twitt.findOneAndUpdate(
+        { _id: req.query.twittId },
+        {
+          $set: {
+            retwittedBy: newRetwitts,
+          },
         },
         { returnOriginal: false }
     );
@@ -124,5 +189,6 @@ module.exports = {
   deleteTwitt,
   getFollowingUsersTwitts,
   updateLikes,
-  retwitt,
+  createRetwitt,
+  deleteRetwitt
 };

@@ -182,7 +182,7 @@ const getUserFollowing = async (req, res) => {
   }
 };
 
-const updateUserPosts = async (id, username, data) => {
+const updateUserPosts = async (id, data) => {
   try {
 
   const twitts = await Twitt.find({ user: id })
@@ -194,19 +194,6 @@ const updateUserPosts = async (id, username, data) => {
           $set: {
             name: data.name,
             username: data.username
-          },
-        },
-    );
-  }));
-
-  const retwitts = await Twitt.find({ usernameRetwitt: username })
-
-  await Promise.all(retwitts.map(async (retwitt) => {
-    await Twitt.findOneAndUpdate(
-        { usernameRetwitt: retwitt.usernameRetwitt },
-        {
-          $set: {
-            usernameRetwitt: data.username,
           },
         },
     );
@@ -261,11 +248,8 @@ const updateUser = async (req, res) => {
         { returnOriginal: false }
     );
 
-    console.log(userFound)
-    console.log(user)
-
     if (!(userFound.name === user.name && userFound.username === user.username))
-      await updateUserPosts(userFound._id, userFound.username, {name: user.name, username: user.username})
+      await updateUserPosts(userFound._id, {name: user.name, username: user.username})
 
     res.status(200).json(user);
   } catch (err) {
