@@ -1,6 +1,7 @@
 const Twitt = require("../models/twittModel");
 const Retwitt = require("../models/retwittModel");
 const User = require("../models/userModel")
+const {query} = require("express");
 
 const mixTwittsAndRetwitts = async (twitts, retwitts) => {
   try {
@@ -55,6 +56,32 @@ const getAllTwitts = async (req, res) => {
   }
 };
 
+const getPost = async (req, res) => {
+  try {
+    let twitt = {}
+    if (req.query.findTwitt) twitt = await Twitt.findById(req.params.id)
+    if (twitt === null) return res.status(400).json({error: "Twitt does not exist"})
+
+    let responses = await Twitt.find({fatherId: req.params.id}).sort({ createdAt: -1 });
+    if (responses === null) responses = []
+
+    const updatedResponses = await Promise.all(responses.map(async (twitt) => {
+      const user = await User.findById(twitt.user);
+      const twittObject = twitt.toObject();
+      twittObject.image = user.profile;
+      return twittObject;
+    }));
+
+    const result = {
+      twitt: twitt,
+      responses: updatedResponses
+    }
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const getAllUserTwitts = async (req, res) => {
   try {
     const twitts = await Twitt.find({ user: req.params.id })
@@ -81,9 +108,30 @@ const getFollowingUsersTwitts = async (req, res) => {
 
 const createTwitt = async (req, res) => {
   try {
-    const twitt = await Twitt.create(req.body);
+    const twitt = await Twitt.create(req.body.data);
 
-    res.status(200).json(twitt);
+    let result = {
+      twitt : twitt,
+      father: null
+    }
+
+    if (twitt.fatherId !== null) {
+      const newComments = req.body.comments
+      newComments.push(req.userId)
+
+      const father= await Twitt.findOneAndUpdate(
+          { _id: twitt.fatherId },
+          {
+            $set: {
+              commentedBy: newComments,
+            },
+          },
+          { returnOriginal: false }
+      );
+      result.father = father
+    }
+
+    res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -188,6 +236,7 @@ module.exports = {
   createTwitt,
   deleteTwitt,
   getFollowingUsersTwitts,
+  getPost,
   updateLikes,
   createRetwitt,
   deleteRetwitt

@@ -12,14 +12,10 @@ const twittSchema = new Schema(
       type: String,
       required: false,
     },
-    comments: {
-      type: Array,
-      required: true,
-        default: [],
-    },
     likes: {
       type: Number,
       required: true,
+        default: 0,
     },
     user: {
       type: String,

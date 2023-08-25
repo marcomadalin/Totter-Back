@@ -3,6 +3,7 @@ const {
   getAllTwitts,
   getAllUserTwitts,
   getFollowingUsersTwitts,
+  getPost,
   createTwitt,
   deleteTwitt,
   updateLikes,
@@ -20,6 +21,8 @@ router.get("/allFollowing", requireAuth, getFollowingUsersTwitts);
 router.get("/all", getAllTwitts);
 
 router.get("/allUser/:id", getAllUserTwitts);
+
+router.get("/:id", getPost);
 
 router.put("/updateLikes", requireAuth, updateLikes);
 
