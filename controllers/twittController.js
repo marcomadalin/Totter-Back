@@ -8,6 +8,10 @@ const mixTwittsAndRetwitts = async (twitts, retwitts) => {
     const updatedTwitts = await Promise.all(twitts.map(async (twitt) => {
       const user = await User.findById(twitt.user);
       const twittObject = twitt.toObject();
+      if (Object.hasOwn(twittObject, "fatherId") && twitt.fatherId !== null) {
+        const father = await Twitt.findById(twitt.fatherId)
+        twittObject.commentUsername = father.username
+      }
       twittObject.image = user.profile;
       twittObject.compare = twittObject.createdAt
       return twittObject;
@@ -24,6 +28,11 @@ const mixTwittsAndRetwitts = async (twitts, retwitts) => {
         twittObject.image = user.profile;
         twittObject.compare = twittObject.createdAt
         twitt = twittObject
+
+        if (Object.hasOwn(twittObject, "fatherId") && twitt.fatherId !== null) {
+          const father = await Twitt.findById(twitt.fatherId)
+          twitt.commentUsername = father.username
+        }
       }
 
       retwittObject.retwittUsername = user.username
@@ -62,12 +71,21 @@ const getPost = async (req, res) => {
     if (req.query.findTwitt) twitt = await Twitt.findById(req.params.id)
     if (twitt === null) return res.status(400).json({error: "Twitt does not exist"})
 
+    if (Object.hasOwn(twitt, "fatherId") && twitt.fatherId !== null) {
+      const father = await Twitt.findById(twitt.fatherId)
+      twitt.commentUsername = father.username
+    }
+
     let responses = await Twitt.find({fatherId: req.params.id}).sort({ createdAt: -1 });
     if (responses === null) responses = []
 
     const updatedResponses = await Promise.all(responses.map(async (twitt) => {
       const user = await User.findById(twitt.user);
       const twittObject = twitt.toObject();
+      if (Object.hasOwn(twittObject, "fatherId") && twitt.fatherId !== null) {
+        const father = await Twitt.findById(twitt.fatherId)
+        twittObject.commentUsername = father.username
+      }
       twittObject.image = user.profile;
       return twittObject;
     }));
