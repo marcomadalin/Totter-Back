@@ -126,15 +126,29 @@ const getFollowingUsersTwitts = async (req, res) => {
 
 const createTwitt = async (req, res) => {
   try {
-    const twitt = await Twitt.create(req.body.data);
+    let imageData = null
+    const imageFile = req.files.find((file) => file.fieldname === 'img');
+
+    if (req.body.hasImage.toLowerCase() === 'true') imageData = imageFile.buffer.toString("base64");
+
+    const data = {
+      text: req.body.text,
+      user: req.body.user,
+      name: req.body.name,
+      fatherId: req.body.fatherId.toLowerCase() !== "null" ? req.body.fatherId : null,
+      username: req.body.username,
+      img: imageData,
+    }
+
+    const twitt = await Twitt.create(data);
 
     let result = {
       twitt : twitt,
       father: null
     }
 
-    if (twitt.fatherId !== null) {
-      const newComments = req.body.comments
+    if (twitt.fatherId !== null && req.body.fatherId.toLowerCase() !== "null") {
+      const newComments = JSON.parse(req.body.comments)
       newComments.push(req.userId)
 
       const father= await Twitt.findOneAndUpdate(

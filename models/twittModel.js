@@ -44,6 +44,9 @@ const twittSchema = new Schema(
           required: true,
           default: [],
       },
+      img: {
+          type: String,
+      },
   },
   { timestamps: true }
 );

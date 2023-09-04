@@ -17,16 +17,8 @@ app.use(express.json());
 app.use(cors());
 app.use(multer().any())
 
-app.use((req, res, next) => {
-  console.log(req.path, req.method);
-  console.log(req.body);
-  next();
-});
-
-
 app.use("/twitts", twittRoutes);
 app.use("/users", userRoutes);
-
 
 mongoose.connection.once('open', () => {
     app.listen(process.env.PORT, () => {

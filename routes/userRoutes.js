@@ -16,8 +16,6 @@ const {
 const requireAuth = require("../middleware/requireAuth");
 const multer = require('multer');
 
-const upload = multer();
-
 const router = express.Router();
 
 router.post("/login", loginUser);
@@ -42,6 +40,6 @@ router.put("/follow", requireAuth, followUser);
 
 router.put("/:id", requireAuth, updateUser);
 
-router.delete("/:id", requireAuth, upload.single('image'), deleteUser);
+router.delete("/:id", requireAuth, deleteUser);
 
 module.exports = router;
