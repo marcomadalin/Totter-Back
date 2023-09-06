@@ -169,16 +169,6 @@ const createTwitt = async (req, res) => {
   }
 };
 
-const deleteTwitt = async (req, res) => {
-  try {
-    const twitt = await Twitt.deleteOne({ _id: req.params.id });
-
-    res.status(200).json(twitt);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
 const updateLikes = async (req, res) => {
   try {
     const userLikes = req.body.userLikes
@@ -255,6 +245,17 @@ const deleteRetwitt = async (req, res) => {
         { returnOriginal: false }
     );
 
+
+    res.status(200).json(twitt);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const deleteTwitt = async (req, res) => {
+  try {
+    await Retwitt.deleteMany({twittId: req.params.id})
+    const twitt = await Twitt.findOneAndDelete(req.params.id)
 
     res.status(200).json(twitt);
   } catch (err) {

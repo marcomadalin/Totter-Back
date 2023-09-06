@@ -32,7 +32,7 @@ router.post("/new", requireAuth, createTwitt);
 
 router.delete("/deleteRetwitt", requireAuth, deleteRetwitt);
 
-router.delete("/delete/:id", requireAuth, deleteTwitt);
+router.delete("/:id", requireAuth, deleteTwitt);
 
 
 module.exports = router;
