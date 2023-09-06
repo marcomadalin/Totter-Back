@@ -255,7 +255,7 @@ const deleteRetwitt = async (req, res) => {
 const deleteTwitt = async (req, res) => {
   try {
     await Retwitt.deleteMany({twittId: req.params.id})
-    const twitt = await Twitt.findOneAndDelete(req.params.id)
+    const twitt = await Twitt.findOneAndDelete({_id: req.params.id})
 
     res.status(200).json(twitt);
   } catch (err) {
