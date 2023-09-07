@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
 const validator = require("validator")
 const Twitt = require("../models/twittModel");
+const TwittController = require("../controllers/twittController")
 
 function createToken(_id) {
   return jwt.sign({_id: _id}, process.env.SECRET, {expiresIn: '1d'})
@@ -89,8 +90,7 @@ const getUser = async (req, res) => {
 
 const findUser = async (req, res) => {
   try {
-    console.log(req.query.user)
-        const users = await User.find({ name: { $regex: req.query.user, $options: 'i' } }).sort({ 'followers.length': -1 }).limit(req.query.limit);
+    const users = await User.find({ name: { $regex: req.query.user, $options: 'i' } }).sort({ 'followers.length': -1 }).limit(req.query.limit);
 
     res.status(200).json(users);
   } catch (err) {
@@ -200,7 +200,7 @@ const updateUserPosts = async (id, data) => {
   }));
   }
   catch (e) {
-    console.log(e)
+    throw e
   }
 }
 
@@ -253,7 +253,6 @@ const updateUser = async (req, res) => {
 
     res.status(200).json(user);
   } catch (err) {
-    console.log(err)
     res.status(400).json({ error: err.message });
   }
 };
@@ -307,7 +306,14 @@ const deleteUser = async (req, res) => {
   try {
     if (req.params.id !== req.userId) return res.status(403).json({error: "Cannot delete user"})
 
-    const user = await User.deleteOne({ _id: req.params.id });
+    const allPosts = await TwittController.obtainAllUserTwitts(req.userId)
+
+    await Promise.all(allPosts.map(async (twitt) => {
+      if (Object.hasOwn(twitt, "retwittUsername")) await TwittController.removeRetwitt(req.userId, twitt._id, twitt)
+      else await TwittController.removeTwitt(twitt._id)
+    }));
+
+    const user = await User.findOneAndDelete({ _id: req.params.id });
 
     res.status(200).json(user);
   } catch (err) {

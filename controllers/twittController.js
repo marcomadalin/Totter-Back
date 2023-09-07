@@ -1,7 +1,6 @@
 const Twitt = require("../models/twittModel");
 const Retwitt = require("../models/retwittModel");
 const User = require("../models/userModel")
-const {query} = require("express");
 
 const mixTwittsAndRetwitts = async (twitts, retwitts) => {
   try {
@@ -33,13 +32,13 @@ const mixTwittsAndRetwitts = async (twitts, retwitts) => {
           const father = await Twitt.findById(twitt.fatherId)
           twitt.commentUsername = father.username
         }
+        delete twittObject._id;
       }
 
       retwittObject.retwittUsername = user.username
       orgCompare = structuredClone(retwittObject.createdAt)
       retwittObject = Object.assign(retwittObject, twitt)
       retwittObject.compare = orgCompare
-
       return retwittObject;
     }));
 
@@ -49,7 +48,7 @@ const mixTwittsAndRetwitts = async (twitts, retwitts) => {
     return result
   }
   catch (e) {
-    console.log(e)
+    throw e
   }
 }
 
@@ -100,13 +99,20 @@ const getPost = async (req, res) => {
   }
 };
 
+const obtainAllUserTwitts = async (userId) => {
+  try {
+    const twitts = await Twitt.find({ user: userId })
+    const retwitts = await Retwitt.find({ userId: userId })
+
+    return await mixTwittsAndRetwitts(twitts, retwitts)
+  } catch (err) {
+    throw err
+  }
+};
+
 const getAllUserTwitts = async (req, res) => {
   try {
-    const twitts = await Twitt.find({ user: req.params.id })
-    const retwitts = await Retwitt.find({ userId: req.params.id })
-
-    const result = await mixTwittsAndRetwitts(twitts, retwitts)
-    res.status(200).json(result);
+    res.status(200).json(await obtainAllUserTwitts(req.params.id));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -252,12 +258,43 @@ const deleteRetwitt = async (req, res) => {
   }
 };
 
+const removeTwitt = async (id) => {
+  try {
+    await Retwitt.deleteMany({twittId: id})
+    return await Twitt.findOneAndDelete({_id: id})
+  } catch (err) {
+    throw (err)
+  }
+};
+
+const removeRetwitt = async (userId, id, retwitt) => {
+  try {
+
+    await Retwitt.findOneAndDelete({_id: id})
+
+    const newRetwitts = retwitt.retwittedBy
+    const index = newRetwitts.indexOf(userId);
+    if (index > -1) newRetwitts.splice(index, 1);
+
+    await Twitt.findOneAndUpdate(
+        { _id: retwitt.twittId },
+        {
+          $set: {
+            retwittedBy: newRetwitts,
+          },
+        },
+        { returnOriginal: false }
+    );
+
+
+  } catch (err) {
+    throw err
+  }
+};
+
 const deleteTwitt = async (req, res) => {
   try {
-    await Retwitt.deleteMany({twittId: req.params.id})
-    const twitt = await Twitt.findOneAndDelete({_id: req.params.id})
-
-    res.status(200).json(twitt);
+    res.status(200).json(await removeTwitt(req.params.id));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -272,5 +309,8 @@ module.exports = {
   getPost,
   updateLikes,
   createRetwitt,
-  deleteRetwitt
+  deleteRetwitt,
+  removeTwitt,
+  removeRetwitt,
+  obtainAllUserTwitts
 };
